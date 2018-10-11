@@ -111,8 +111,3 @@ def solve_puzzle(start_node):
     
     
     
-
-testnode = puzzle_node([1,2,3,4,0,5,6,7,8])
-teststart = puzzle_node([0,1,2,3,4,5,6,7,8])
-testnode4 = puzzle_node([0,2,1,5,4,7,6,3,8])
-solve_puzzle(testnode)

@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 Created on Wed Oct 10 17:11:56 2018
-
 @author: Steve
 """
+
+import line_profiler
 
 import collections
 from datetime import datetime
@@ -15,6 +15,7 @@ class puzzle_node:
             self.board = board
             self.parent = parent
             self.hole = self.board.index(0)
+            self.man_dist = self.manhattan_distance()
     
     #two nodes are equal if their list representations are equal
     def __eq__(self, other):
@@ -29,11 +30,13 @@ class puzzle_node:
         for value, i in enumerate(self.board):
             h ^= value << i
         return h
-        
+    
+    def __lt__(self, other):
+        return self.man_dist < other.man_dist
     
     #checks if node is equal to goal node
     def solved(self):
-        return self.board == list(range(0,9))
+        return self.board == list(range(9))
     
     #returns a list of function names of possible moves
     def get_moves(self):
@@ -54,13 +57,13 @@ class puzzle_node:
         bigN = 0
         for i in range(9):
             for j in self.board[i+1:]:
-                if j < self.board[i]:
+                if j < self.board[i] and j != 0:
                     bigN += 1
         return bigN % 2 == 0
     
     def manhattan_distance(self):
         man_dist = 0
-        for i in range(0, 9):
+        for i in range(1, 9):
             #up down steps calculated by doing integer division with 3
             man_dist += abs((self.board.index(i)//3 - i//3))
             #left right steps calculated by taking mod 3 first then difference
@@ -103,12 +106,13 @@ def solve_puzzle(start_node):
         raise ValueError("Puzzle was already solved.")
     if not start_node.solvable():
         raise ValueError("Puzzle is not in solvable class.")
-    frontier = collections.deque([start_node])
+    frontier = [start_node]
     explored = set([])
     tries = 0
     while frontier and tries < 5001:
         tries += 1
-        current_node = frontier.popleft()
+        frontier.sort()
+        current_node = frontier.pop(0)
         explored.add(current_node)
         for f in current_node.get_moves():
             new_node = puzzle_node(f(current_node), current_node)
@@ -118,4 +122,5 @@ def solve_puzzle(start_node):
             if new_node not in frontier and new_node not in explored:
                 frontier.append(new_node)
     raise ValueError("Tries exceeded.")
-    
+    print("Tries exceeded.")
+
